@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7fafc;
+  --foreground: #0b1f3d;
 }
 
 @theme inline {
@@ -14,8 +19,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Keep a constant light theme to match the hero/navbar design. */
+    --background: #f7fafc;
+    --foreground: #0b1f3d;
   }
 }
 
