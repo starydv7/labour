@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { LANDING_NAVBAR_OFFSET_PX } from "@/components/landing/landing-navbar";
 
 function GreenCheck() {
@@ -9,6 +10,55 @@ function GreenCheck() {
       <path
         d="M7.8 14.2L3.7 10.1L5.1 8.7L7.8 11.4L14.9 4.3L16.3 5.7L7.8 14.2Z"
         fill="#16a34a"
+      />
+    </svg>
+  );
+}
+
+function ShieldIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 3l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V7l8-4z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ClockPayIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M12 8v4l2.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MapPinIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 21s7-4.35 7-10a7 7 0 10-14 0c0 5.65 7 10 7 10z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <circle cx="12" cy="11" r="2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function ScaleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 3v18M5 8l3 6h8l3-6M8 14h8"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -255,6 +305,261 @@ export function LandingHero() {
         </div>
       </section>
 
+      <section
+        className="border-t border-zinc-200 bg-white"
+        aria-labelledby="trust-credibility-heading"
+      >
+        <div className="mx-auto w-[min(100%,calc(100%-1rem))] max-w-[1600px] px-2 py-12 sm:w-[90%] sm:px-0 sm:py-16">
+          <div className="text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
+              Trust &amp; credibility
+            </p>
+            <h2
+              id="trust-credibility-heading"
+              className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl"
+            >
+              Why workers and contractors choose Labour
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-zinc-600">
+              Clear pay, verified sites, and support when you need it — so you can focus on the work,
+              not the worry.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                title: "Verified employers",
+                body: "Contractors and sites are reviewed before listings go live.",
+                icon: ShieldIcon,
+              },
+              {
+                title: "On-time pay",
+                body: "Agreed wages and pay cycles shown upfront on every job.",
+                icon: ClockPayIcon,
+              },
+              {
+                title: "Jobs near you",
+                body: "Openings across Delhi NCR — filter by trade and location.",
+                icon: MapPinIcon,
+              },
+              {
+                title: "Fair & transparent",
+                body: "No hidden fees for workers to register or browse openings.",
+                icon: ScaleIcon,
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-zinc-100 bg-zinc-50/80 p-5 text-left shadow-sm"
+              >
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3 className="mt-4 text-sm font-semibold text-zinc-900">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{item.body}</p>
+              </div>
+            );
+            })}
+          </div>
+
+          <div className="mt-16 border-t border-zinc-100 pt-16">
+            <h3 className="text-center text-lg font-semibold text-zinc-900 sm:text-xl">
+              How it works
+            </h3>
+            <p className="mx-auto mt-2 max-w-lg text-center text-sm text-zinc-600">
+              Three simple steps from signup to your next shift.
+            </p>
+            <ol className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-6">
+              {[
+                {
+                  step: "1",
+                  title: "Register free",
+                  body: "Create your profile in minutes with your trade, skills, and preferred areas.",
+                },
+                {
+                  step: "2",
+                  title: "Browse & apply",
+                  body: "See verified openings, pay, and location — apply to roles that fit you.",
+                },
+                {
+                  step: "3",
+                  title: "Work & get paid",
+                  body: "Start on site with clear terms and track your applications in one place.",
+                },
+              ].map((s) => (
+                <li key={s.step} className="flex flex-col items-center text-center">
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-emerald-600 text-lg font-bold text-white shadow-sm">
+                    {s.step}
+                  </span>
+                  <h4 className="mt-4 text-sm font-semibold text-zinc-900">{s.title}</h4>
+                  <p className="mt-2 max-w-xs text-sm leading-relaxed text-zinc-600">{s.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="mt-16 border-t border-zinc-100 pt-16">
+            <h3 className="text-center text-lg font-semibold text-zinc-900 sm:text-xl">
+              What people say
+            </h3>
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  quote:
+                    "I found steady mason work within a week. Pay and site details were clear before I went.",
+                  name: "Rajesh K.",
+                  role: "Mason · Gurugram",
+                },
+                {
+                  quote:
+                    "Posting helpers for our site is faster than phone calls. Workers show up knowing the rate.",
+                  name: "Priya S.",
+                  role: "Site supervisor · Noida",
+                },
+                {
+                  quote:
+                    "As a driver, I like seeing monthly pay and location upfront. Less back-and-forth.",
+                  name: "Amit D.",
+                  role: "Driver · Delhi",
+                },
+              ].map((t) => (
+                <blockquote
+                  key={t.name}
+                  className="flex flex-col rounded-2xl border border-zinc-200 bg-[#f7fafc] p-6 shadow-sm"
+                >
+                  <p className="text-sm leading-relaxed text-zinc-700">&ldquo;{t.quote}&rdquo;</p>
+                  <footer className="mt-4 border-t border-zinc-200/80 pt-4">
+                    <cite className="not-italic">
+                      <span className="text-sm font-semibold text-zinc-900">{t.name}</span>
+                      <span className="mt-0.5 block text-xs text-zinc-500">{t.role}</span>
+                    </cite>
+                  </footer>
+                </blockquote>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="border-t border-zinc-200 bg-[#f0f4f8]"
+        aria-labelledby="audiences-heading"
+      >
+        <div className="mx-auto w-[min(100%,calc(100%-1rem))] max-w-[1600px] px-2 py-12 sm:w-[90%] sm:px-0 sm:py-16">
+          <div className="text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
+              Built for both sides
+            </p>
+            <h2
+              id="audiences-heading"
+              className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl"
+            >
+              For workers and for employers
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-zinc-600">
+              Whether you&apos;re looking for your next site or your next hire, Labour keeps pay and
+              expectations clear.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
+              <div className="inline-flex w-fit rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                Workers
+              </div>
+              <h3 className="mt-4 text-xl font-semibold text-zinc-900">Find work that fits you</h3>
+              <p className="mt-2 text-sm text-zinc-600">
+                Skilled and general labour — masons, electricians, drivers, helpers, and more across
+                Delhi NCR.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-zinc-700">
+                <li className="flex gap-2">
+                  <span className="mt-0.5 shrink-0">
+                    <GreenCheck />
+                  </span>
+                  <span>Browse verified openings with pay and location upfront</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-0.5 shrink-0">
+                    <GreenCheck />
+                  </span>
+                  <span>Apply from one profile — track where you&apos;ve applied</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-0.5 shrink-0">
+                    <GreenCheck />
+                  </span>
+                  <span>No fee to register or browse jobs</span>
+                </li>
+              </ul>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Link
+                  href="/auth/signup?role=worker"
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500"
+                >
+                  Register as a worker
+                </Link>
+                <Link
+                  href="/jobs"
+                  className="inline-flex h-11 items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+                >
+                  Browse jobs
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
+              <div className="inline-flex w-fit rounded-full bg-zinc-200 px-3 py-1 text-xs font-semibold text-zinc-800">
+                Employers &amp; contractors
+              </div>
+              <h3 className="mt-4 text-xl font-semibold text-zinc-900">Hire labour faster</h3>
+              <p className="mt-2 text-sm text-zinc-600">
+                Post requirements by trade, set wages, and reach workers who are ready to work.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-zinc-700">
+                <li className="flex gap-2">
+                  <span className="mt-0.5 shrink-0">
+                    <GreenCheck />
+                  </span>
+                  <span>List sites and shifts with clear pay — daily or monthly</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-0.5 shrink-0">
+                    <GreenCheck />
+                  </span>
+                  <span>Workers see your posting in the same place they search for jobs</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-0.5 shrink-0">
+                    <GreenCheck />
+                  </span>
+                  <span>Manage listings from your account when you&apos;re signed in</span>
+                </li>
+              </ul>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Link
+                  href="/auth/signup?role=employer"
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-zinc-900 px-5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800"
+                >
+                  Register to hire
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="inline-flex h-11 items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+                >
+                  View pricing
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <LandingFaq />
+
       <div className="w-full bg-[#0b1f3d]">
         <div className="mx-auto grid w-[min(100%,calc(100%-1rem))] max-w-[1600px] grid-cols-2 gap-6 px-2 py-8 sm:w-[90%] sm:grid-cols-3 sm:px-0 md:grid-cols-5">
           {[
@@ -272,6 +577,116 @@ export function LandingHero() {
         </div>
       </div>
     </div>
+  );
+}
+
+const FAQ_ITEMS = [
+  {
+    id: "cost",
+    q: "Does it cost anything to register as a worker?",
+    a: "No. Creating a worker profile and browsing open jobs on Labour is free. You only invest your time when you choose to apply.",
+  },
+  {
+    id: "pay",
+    q: "How do I know what I will be paid?",
+    a: "Each listing shows pay type (per day, per month, or contract) and the amount before you apply. Always confirm final terms on site with the contractor.",
+  },
+  {
+    id: "cities",
+    q: "Which cities do you cover?",
+    a: "We focus on Delhi NCR and surrounding areas today, with more cities rolling out over time. Use location filters when you browse jobs.",
+  },
+  {
+    id: "employer-post",
+    q: "How do employers post a job?",
+    a: "Sign up as an employer or contractor, then use Post a job to describe the trade, location, number of workers, and wages. Listings appear where workers search.",
+  },
+  {
+    id: "verified",
+    q: "What does “verified employer” mean?",
+    a: "We review contractor and site information to reduce fake listings. It is not a legal guarantee — always use good judgment and agreed written terms where possible.",
+  },
+  {
+    id: "account",
+    q: "I forgot my password. What should I do?",
+    a: "Use Forgot password on the sign-in page to start a reset. This demo app stores auth in your browser only; in production you would receive a secure link by email.",
+  },
+] as const;
+
+function LandingFaq() {
+  const [openId, setOpenId] = useState<string | null>(FAQ_ITEMS[0]?.id ?? null);
+
+  return (
+    <section className="border-t border-zinc-200 bg-white" aria-labelledby="faq-heading">
+      <div className="mx-auto w-[min(100%,calc(100%-1rem))] max-w-[1600px] px-2 py-12 sm:w-[90%] sm:px-0 sm:py-16">
+        <div className="text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
+            FAQ
+          </p>
+          <h2
+            id="faq-heading"
+            className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl"
+          >
+            Common questions
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm text-zinc-600">
+            Quick answers about signing up, pay, and how Labour works.
+          </p>
+        </div>
+
+        <div className="mt-10 rounded-2xl border border-zinc-200 bg-[#f7fafc] px-1 sm:px-2">
+          {FAQ_ITEMS.map((item) => {
+            const open = openId === item.id;
+            return (
+              <div key={item.id} className="border-b border-zinc-200 last:border-b-0">
+                <h3 className="m-0">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between gap-3 py-4 pl-3 pr-3 text-left text-sm font-semibold text-zinc-900 sm:pl-4 sm:pr-4"
+                    aria-expanded={open}
+                    aria-controls={`faq-panel-${item.id}`}
+                    id={`faq-trigger-${item.id}`}
+                    onClick={() => setOpenId(open ? null : item.id)}
+                  >
+                    <span className="min-w-0">{item.q}</span>
+                    <span
+                      className={`shrink-0 text-zinc-400 transition-transform duration-200 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                      aria-hidden
+                    >
+                      ▾
+                    </span>
+                  </button>
+                </h3>
+                <div
+                  id={`faq-panel-${item.id}`}
+                  role="region"
+                  aria-labelledby={`faq-trigger-${item.id}`}
+                  className={open ? "block" : "hidden"}
+                >
+                  <p className="border-t border-zinc-100 px-3 pb-4 pt-3 text-sm leading-relaxed text-zinc-600 sm:px-4">
+                    {item.a}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="mt-8 text-center text-sm text-zinc-600">
+          Still stuck?{" "}
+          <Link href="/auth/login" className="font-semibold text-emerald-700 hover:underline">
+            Sign in
+          </Link>{" "}
+          or{" "}
+          <Link href="/auth/signup" className="font-semibold text-emerald-700 hover:underline">
+            create an account
+          </Link>
+          .
+        </p>
+      </div>
+    </section>
   );
 }
 
