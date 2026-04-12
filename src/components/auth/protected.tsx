@@ -2,10 +2,12 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useI18nText } from "@/lib/app-preferences";
 import { useAuth } from "@/lib/auth";
 
 export function Protected({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
+  const t = useI18nText();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -20,7 +22,7 @@ export function Protected({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="min-h-full grid place-items-center bg-[var(--background)] text-[var(--foreground)]">
-        <div className="text-sm text-zinc-600">Loading…</div>
+        <div className="text-sm text-zinc-600">{t.loading}</div>
       </div>
     );
   }

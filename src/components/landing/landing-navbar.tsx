@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { UserMenuDropdown } from "@/components/auth/user-menu";
 import { PRIMARY_NAV_LINKS } from "@/config/nav-links";
+import { useI18nText } from "@/lib/app-preferences";
 import { useAuth } from "@/lib/auth";
 
 function LogoMark() {
@@ -19,26 +20,17 @@ function LogoMark() {
   );
 }
 
-/** Offset for main content so it clears the fixed navbar (top strip + header). Slightly tall for mobile safe area. */
-export const LANDING_NAVBAR_OFFSET_PX = 96;
+/** Offset for main content so it clears the fixed header. */
+export const LANDING_NAVBAR_OFFSET_PX = 64;
 
 export function LandingNavbar() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const t = useI18nText();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="fixed left-0 top-0 z-50 w-full">
-      <div className="w-full bg-[#0b1f3d] text-[10px] text-zinc-200 sm:text-xs">
-        <div className="mx-auto flex w-[min(100%,calc(100%-1rem))] max-w-[1600px] items-center justify-between gap-2 px-2 py-1.5 sm:w-[90%] sm:px-0">
-          <div className="min-w-0 truncate">1,240 jobs posted today</div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:block">Hindi</div>
-            <div className="hidden sm:block">Help</div>
-          </div>
-        </div>
-      </div>
-
       <header className="border-b border-zinc-200 bg-white shadow-sm">
         <div className="mx-auto flex h-14 min-h-[3.5rem] w-[min(100%,calc(100%-1rem))] max-w-[1600px] items-center justify-between gap-2 px-2 sm:h-16 sm:w-[90%] sm:px-0">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -68,37 +60,35 @@ export function LandingNavbar() {
                   pathname === item.href ? "text-emerald-700" : "text-zinc-600 hover:text-zinc-900"
                 }`}
               >
-                {item.label}
+                {item.label === "Find Work"
+                  ? t.findWork
+                  : item.label === "Applied Jobs"
+                    ? t.appliedJobs
+                    : item.label === "How it Works"
+                      ? t.howItWorks
+                      : item.label === "Pricing"
+                        ? t.pricing
+                        : item.label}
               </Link>
             ))}
           </nav>
 
           <div className="hidden items-center gap-2 lg:flex lg:gap-3">
             {user ? (
-              <>
-                {user.role === "contractor" ? (
-                  <Link
-                    href="/jobs/post"
-                    className="inline-flex h-9 min-h-[44px] items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 sm:px-4"
-                  >
-                    Post a job
-                  </Link>
-                ) : null}
-                <UserMenuDropdown />
-              </>
+              <UserMenuDropdown />
             ) : (
               <>
                 <Link
                   href="/auth/login"
                   className="text-sm font-medium text-zinc-600 hover:text-zinc-900"
                 >
-                  Sign in
+                  {t.signIn}
                 </Link>
                 <Link
                   href="/auth/signup"
                   className="inline-flex h-9 min-h-[44px] items-center rounded-full bg-emerald-600 px-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 sm:px-4"
                 >
-                  Register Free
+                  {t.registerFree}
                 </Link>
               </>
             )}
@@ -127,7 +117,15 @@ export function LandingNavbar() {
                   }`}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {item.label}
+                  {item.label === "Find Work"
+                    ? t.findWork
+                    : item.label === "Applied Jobs"
+                      ? t.appliedJobs
+                      : item.label === "How it Works"
+                        ? t.howItWorks
+                        : item.label === "Pricing"
+                          ? t.pricing
+                          : item.label}
                 </Link>
               ))}
               <div className="mt-2 border-t border-zinc-100 pt-3">
@@ -136,21 +134,12 @@ export function LandingNavbar() {
                     <p className="truncate px-3 text-xs text-zinc-500">
                       {user.name ?? user.email}
                     </p>
-                    {user.role === "contractor" ? (
-                      <Link
-                        href="/jobs/post"
-                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-base font-semibold text-emerald-900"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        Post a job
-                      </Link>
-                    ) : null}
                     <Link
                       href="/profile"
                       className="rounded-lg px-3 py-3 text-base font-medium text-zinc-800"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Profile
+                      {t.profile}
                     </Link>
                     <button
                       type="button"
@@ -160,7 +149,7 @@ export function LandingNavbar() {
                         setMenuOpen(false);
                       }}
                     >
-                      Logout
+                      {t.logout}
                     </button>
                   </div>
                 ) : (
@@ -170,14 +159,14 @@ export function LandingNavbar() {
                       className="rounded-lg px-3 py-3 text-base font-medium text-zinc-800"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Sign in
+                      {t.signIn}
                     </Link>
                     <Link
                       href="/auth/signup"
                       className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-emerald-600 px-3 py-2 text-base font-semibold text-white"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Register Free
+                      {t.registerFree}
                     </Link>
                   </div>
                 )}

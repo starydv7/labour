@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { LANDING_NAVBAR_OFFSET_PX } from "@/components/landing/landing-navbar";
+import { useI18nText } from "@/lib/app-preferences";
+import { useAuth } from "@/lib/auth";
 
 function GreenCheck() {
   return (
@@ -65,6 +67,9 @@ function ScaleIcon({ className }: { className?: string }) {
 }
 
 export function LandingHero() {
+  const { user } = useAuth();
+  const t = useI18nText();
+
   return (
     <div
       className="min-h-full bg-[#f7fafc]"
@@ -74,18 +79,18 @@ export function LandingHero() {
         <div className="grid items-start gap-8 lg:grid-cols-[1fr_minmax(0,520px)] lg:gap-10">
           <section>
             <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/auth/signup?role=worker"
-                className="inline-flex h-9 items-center rounded-full bg-emerald-600 px-4 text-sm font-medium text-white shadow-sm"
-              >
-                I&apos;m a Worker
-              </Link>
-              <Link
-                href="/auth/signup?role=employer"
-                className="inline-flex h-9 items-center rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 shadow-sm"
-              >
-                I&apos;m an Employer / Contractor
-              </Link>
+              {!user ? (
+                <Link
+                  href="/auth/signup"
+                  className="inline-flex h-9 items-center rounded-full bg-emerald-600 px-4 text-sm font-medium text-white shadow-sm"
+                >
+                  {t.registerAsWorker}
+                </Link>
+              ) : (
+                <span className="inline-flex h-9 items-center rounded-full bg-emerald-50 px-4 text-sm font-medium text-emerald-800">
+                  {t.welcomeBack}
+                </span>
+              )}
             </div>
 
             <div className="mt-8 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wide text-zinc-600 sm:mt-10 sm:gap-3 sm:text-xs">
@@ -96,31 +101,37 @@ export function LandingHero() {
             </div>
 
             <h1 className="mt-4 text-balance text-3xl font-semibold leading-[1.08] text-zinc-900 sm:text-4xl md:text-5xl">
-              Find <span className="text-emerald-600">daily work</span>,<br />
-              get paid on time,
-              <br />
-              grow your career.
+              {t.findDailyWorkNearYou}
             </h1>
 
             <p className="mt-4 max-w-xl text-base leading-7 text-zinc-600">
               Labour connects skilled workers - masons, electricians, drivers, helpers and more - with
-              trusted contractors and employers.
+              trusted job opportunities near you.
               <br />
               Register free in 2 minutes, no experience needed.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href="/auth/signup?role=worker"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500"
-              >
-                Register as a Worker - It&apos;s Free
-              </Link>
+              {!user ? (
+                <Link
+                  href="/auth/signup"
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500"
+                >
+                  {t.registerAsWorker}
+                </Link>
+              ) : (
+                <Link
+                  href="/profile"
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500"
+                >
+                  {t.profile}
+                </Link>
+              )}
               <Link
                 href="/jobs"
                 className="inline-flex h-11 items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50"
               >
-                Browse Jobs
+                {t.browseJobs}
               </Link>
             </div>
 
@@ -132,7 +143,7 @@ export function LandingHero() {
                 <GreenCheck /> Daily &amp; weekly pay
               </div>
               <div className="flex items-center gap-2">
-                <GreenCheck /> Verified employers only
+                <GreenCheck /> Verified job listings
               </div>
               <div className="flex items-center gap-2">
                 <GreenCheck /> Work near you
@@ -143,8 +154,8 @@ export function LandingHero() {
           <aside className="mt-10">
             <div className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-lg">
               <div className="rounded-2xl bg-emerald-600 p-4">
-                <div className="text-[11px] font-semibold text-white/90">LIVE JOB OPENINGS</div>
-                <div className="mt-1 text-lg font-semibold text-white">Jobs near Delhi NCR</div>
+                <div className="text-[11px] font-semibold text-white/90">{t.liveJobOpeningsUpper}</div>
+                <div className="mt-1 text-lg font-semibold text-white">{t.jobsNearDelhiNcr}</div>
               </div>
 
               <div className="mt-4 space-y-3">
@@ -181,12 +192,12 @@ export function LandingHero() {
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-zinc-900">2.4 Cr+</div>
-                        <div className="text-xs text-zinc-500">Wages paid this month</div>
+                        <div className="text-xs text-zinc-500">{t.wagesPaidThisMonth}</div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-emerald-700 font-semibold">Qualified</div>
-                      <div className="text-[11px] text-zinc-500">View details</div>
+                      <div className="text-xs text-emerald-700 font-semibold">{t.qualified}</div>
+                      <div className="text-[11px] text-zinc-500">{t.viewDetails}</div>
                     </div>
                   </div>
                 </div>
@@ -223,7 +234,7 @@ export function LandingHero() {
                 Available work
               </h2>
               <p className="mt-2 max-w-xl text-sm text-zinc-600">
-                Real openings from contractors near Delhi NCR — updated daily. Sign in to apply.
+                Real openings near Delhi NCR — updated daily.
               </p>
             </div>
             <Link
@@ -318,7 +329,7 @@ export function LandingHero() {
               id="trust-credibility-heading"
               className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl"
             >
-              Why workers and contractors choose Labour
+              Why workers choose Labour
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-zinc-600">
               Clear pay, verified sites, and support when you need it — so you can focus on the work,
@@ -329,8 +340,8 @@ export function LandingHero() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                title: "Verified employers",
-                body: "Contractors and sites are reviewed before listings go live.",
+                title: "Verified listings",
+                body: "Job listings and sites are reviewed before they go live.",
                 icon: ShieldIcon,
               },
               {
@@ -457,11 +468,10 @@ export function LandingHero() {
               id="audiences-heading"
               className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl"
             >
-              For workers and for employers
+              For every worker
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-zinc-600">
-              Whether you&apos;re looking for your next site or your next hire, Labour keeps pay and
-              expectations clear.
+              Find nearby work quickly, understand pay upfront, and keep your profile ready for better matches.
             </p>
           </div>
 
@@ -470,7 +480,7 @@ export function LandingHero() {
               <div className="inline-flex w-fit rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
                 Workers
               </div>
-              <h3 className="mt-4 text-xl font-semibold text-zinc-900">Find work that fits you</h3>
+              <h3 className="mt-4 text-xl font-semibold text-zinc-900">{t.findWorkThatFitsYou}</h3>
               <p className="mt-2 text-sm text-zinc-600">
                 Skilled and general labour — masons, electricians, drivers, helpers, and more across
                 Delhi NCR.
@@ -480,19 +490,19 @@ export function LandingHero() {
                   <span className="mt-0.5 shrink-0">
                     <GreenCheck />
                   </span>
-                  <span>Browse verified openings with pay and location upfront</span>
+                  <span>{t.browseVerifiedOpenings}</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-0.5 shrink-0">
                     <GreenCheck />
                   </span>
-                  <span>Apply from one profile — track where you&apos;ve applied</span>
+                  <span>{t.applyFromOneProfile}</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-0.5 shrink-0">
                     <GreenCheck />
                   </span>
-                  <span>No fee to register or browse jobs</span>
+                  <span>{t.noFeeRegister}</span>
                 </li>
               </ul>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -513,44 +523,44 @@ export function LandingHero() {
 
             <div className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
               <div className="inline-flex w-fit rounded-full bg-zinc-200 px-3 py-1 text-xs font-semibold text-zinc-800">
-                Employers &amp; contractors
+                Growth
               </div>
-              <h3 className="mt-4 text-xl font-semibold text-zinc-900">Hire labour faster</h3>
+              <h3 className="mt-4 text-xl font-semibold text-zinc-900">{t.growYourWorkProfile}</h3>
               <p className="mt-2 text-sm text-zinc-600">
-                Post requirements by trade, set wages, and reach workers who are ready to work.
+                Add your skills, wages, and availability so quality opportunities find you faster.
               </p>
               <ul className="mt-6 space-y-3 text-sm text-zinc-700">
                 <li className="flex gap-2">
                   <span className="mt-0.5 shrink-0">
                     <GreenCheck />
                   </span>
-                  <span>List sites and shifts with clear pay — daily or monthly</span>
+                  <span>{t.buildProfileTrade}</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-0.5 shrink-0">
                     <GreenCheck />
                   </span>
-                  <span>Workers see your posting in the same place they search for jobs</span>
+                  <span>{t.uploadPhotoDevice}</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-0.5 shrink-0">
                     <GreenCheck />
                   </span>
-                  <span>Manage listings from your account when you&apos;re signed in</span>
+                  <span>{t.updateAvailability}</span>
                 </li>
               </ul>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link
-                  href="/auth/signup?role=employer"
+                  href="/profile"
                   className="inline-flex h-11 items-center justify-center rounded-xl bg-zinc-900 px-5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800"
                 >
-                  Register to hire
+                  Build profile
                 </Link>
                 <Link
-                  href="/pricing"
+                  href="/jobs"
                   className="inline-flex h-11 items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
                 >
-                  View pricing
+                  Explore jobs
                 </Link>
               </div>
             </div>
@@ -564,7 +574,7 @@ export function LandingHero() {
         <div className="mx-auto grid w-[min(100%,calc(100%-1rem))] max-w-[1600px] grid-cols-2 gap-6 px-2 py-8 sm:w-[90%] sm:grid-cols-3 sm:px-0 md:grid-cols-5">
           {[
             { v: "50K+", l: "Registered workers" },
-            { v: "2,400+", l: "Verified employers & contractors" },
+            { v: "2,400+", l: "Verified listings posted" },
             { v: "18+", l: "Trade categories" },
             { v: "40+", l: "Cities across India" },
             { v: "₹2.4Cr+", l: "Wages paid this month" },
@@ -589,7 +599,7 @@ const FAQ_ITEMS = [
   {
     id: "pay",
     q: "How do I know what I will be paid?",
-    a: "Each listing shows pay type (per day, per month, or contract) and the amount before you apply. Always confirm final terms on site with the contractor.",
+    a: "Each listing shows pay type (per day, per month, or contract) and the amount before you apply. Always confirm final terms before starting work.",
   },
   {
     id: "cities",
@@ -597,23 +607,25 @@ const FAQ_ITEMS = [
     a: "We focus on Delhi NCR and surrounding areas today, with more cities rolling out over time. Use location filters when you browse jobs.",
   },
   {
-    id: "employer-post",
-    q: "How do employers post a job?",
-    a: "Sign up as an employer or contractor, then use Post a job to describe the trade, location, number of workers, and wages. Listings appear where workers search.",
+    id: "profile-build",
+    q: "How do I build my worker profile?",
+    a: "Open Profile after logging in. Add your city, trade, experience, wages, availability, and photo so recruiters can understand your profile quickly.",
   },
   {
     id: "verified",
-    q: "What does “verified employer” mean?",
-    a: "We review contractor and site information to reduce fake listings. It is not a legal guarantee — always use good judgment and agreed written terms where possible.",
+    q: "What does “verified listing” mean?",
+    a: "We review listing details to reduce fake or misleading posts. It is not a legal guarantee — always use good judgment and confirm terms before joining.",
   },
   {
     id: "account",
     q: "I forgot my password. What should I do?",
-    a: "Use Forgot password on the sign-in page to start a reset. This demo app stores auth in your browser only; in production you would receive a secure link by email.",
+    a: "Use Forgot password from login to start a reset. This demo app stores auth in your browser only; in production you would receive a secure link by email.",
   },
 ] as const;
 
 function LandingFaq() {
+  const { user } = useAuth();
+  const t = useI18nText();
   const [openId, setOpenId] = useState<string | null>(FAQ_ITEMS[0]?.id ?? null);
 
   return (
@@ -674,17 +686,27 @@ function LandingFaq() {
           })}
         </div>
 
-        <p className="mt-8 text-center text-sm text-zinc-600">
-          Still stuck?{" "}
-          <Link href="/auth/login" className="font-semibold text-emerald-700 hover:underline">
-            Sign in
-          </Link>{" "}
-          or{" "}
-          <Link href="/auth/signup" className="font-semibold text-emerald-700 hover:underline">
-            create an account
-          </Link>
-          .
-        </p>
+        {!user ? (
+          <p className="mt-8 text-center text-sm text-zinc-600">
+            Still stuck?{" "}
+            <Link href="/auth/login" className="font-semibold text-emerald-700 hover:underline">
+              {t.signInAction}
+            </Link>{" "}
+            or{" "}
+            <Link href="/auth/signup" className="font-semibold text-emerald-700 hover:underline">
+              {t.createAccount}
+            </Link>
+            .
+          </p>
+        ) : (
+          <p className="mt-8 text-center text-sm text-zinc-600">
+            Need to update details?{" "}
+            <Link href="/profile" className="font-semibold text-emerald-700 hover:underline">
+              {t.profile}
+            </Link>
+            .
+          </p>
+        )}
       </div>
     </section>
   );

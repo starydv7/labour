@@ -1,14 +1,14 @@
 export const siteConfig = {
   name: "Labour",
   landing: {
-    tag: "India's #1 Workforce Management Platform",
-    headline: "Hire, manage & pay labour at any scale.",
+    tag: "India's #1 Worker Jobs Platform",
+    headline: "Find, apply, and track labour jobs in one place.",
     description:
-      "Connect vendors, contractors and workers across construction, manufacturing, logistics and more. From onboarding to payroll—everything in one platform.",
-    primaryCta: { href: "/auth/signup", label: "Register as Vendor" },
-    secondaryCta: { href: "/jobs", label: "Browse Workers" },
+      "Skilled and general workers across construction, logistics, and more can discover nearby work opportunities with clear pay details.",
+    primaryCta: { href: "/auth/signup", label: "Register as Worker" },
+    secondaryCta: { href: "/jobs", label: "Browse Jobs" },
     topCtas: {
-      register: { href: "/auth/signup", label: "Register vendor" },
+      register: { href: "/auth/signup", label: "Register worker" },
       getStarted: { href: "/auth/signup", label: "Get started free" },
     },
     stats: [

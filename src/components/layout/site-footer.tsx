@@ -1,8 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { PRIMARY_NAV_LINKS } from "@/config/nav-links";
+import { useI18nText } from "@/lib/app-preferences";
+import { useAuth } from "@/lib/auth";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
+  const { user } = useAuth();
+  const t = useI18nText();
 
   return (
     <footer className="mt-auto border-t border-zinc-200 bg-zinc-50">
@@ -23,8 +29,7 @@ export function SiteFooter() {
               </span>
             </div>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-zinc-600">
-              Daily work, fair pay, and trusted employers — built for workers and contractors across
-              India.
+              Daily work, fair pay, and trusted listings — built for workers across India.
             </p>
           </div>
 
@@ -37,7 +42,15 @@ export function SiteFooter() {
                     href={item.href}
                     className="text-sm text-zinc-700 transition hover:text-emerald-700"
                   >
-                    {item.label}
+                    {item.href === "/jobs"
+                      ? t.findWork
+                      : item.href === "/applied-jobs"
+                        ? t.appliedJobs
+                        : item.href === "/"
+                          ? t.howItWorks
+                          : item.href === "/pricing"
+                            ? t.pricing
+                            : item.label}
                   </Link>
                 </li>
               ))}
@@ -47,24 +60,28 @@ export function SiteFooter() {
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Account</h3>
             <ul className="mt-4 space-y-2.5">
+              {!user ? (
+                <>
+                  <li>
+                    <Link href="/auth/login" className="text-sm text-zinc-700 hover:text-emerald-700">
+                      {t.signInAction}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/auth/signup" className="text-sm text-zinc-700 hover:text-emerald-700">
+                      {t.registerFree}
+                    </Link>
+                  </li>
+                </>
+              ) : null}
               <li>
-                <Link href="/auth/login" className="text-sm text-zinc-700 hover:text-emerald-700">
-                  Sign in
-                </Link>
-              </li>
-              <li>
-                <Link href="/auth/signup" className="text-sm text-zinc-700 hover:text-emerald-700">
-                  Register
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard" className="text-sm text-zinc-700 hover:text-emerald-700">
-                  Dashboard
+                <Link href="/applied-jobs" className="text-sm text-zinc-700 hover:text-emerald-700">
+                  {t.appliedJobs}
                 </Link>
               </li>
               <li>
                 <Link href="/profile" className="text-sm text-zinc-700 hover:text-emerald-700">
-                  Profile
+                  {t.profile}
                 </Link>
               </li>
             </ul>

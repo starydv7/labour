@@ -6,14 +6,16 @@ import { Suspense, useMemo, useState } from "react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18nText } from "@/lib/app-preferences";
 import { useAuth } from "@/lib/auth";
 
 export default function ResetPasswordPage() {
+  const t = useI18nText();
   return (
     <Suspense
       fallback={
-        <AuthShell title="Set a new password" subtitle="Loading reset link…">
-          <div className="text-sm text-zinc-600">Loading…</div>
+        <AuthShell title={t.setNewPassword} subtitle={t.setNewPasswordSubtitle}>
+          <div className="text-sm text-zinc-600">{t.loading}</div>
         </AuthShell>
       }
     >
@@ -23,6 +25,7 @@ export default function ResetPasswordPage() {
 }
 
 function ResetInner() {
+  const t = useI18nText();
   const { resetPassword } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,8 +37,8 @@ function ResetInner() {
 
   return (
     <AuthShell
-      title="Set a new password"
-      subtitle="Paste the reset token from the reset link and choose a new password."
+      title={t.setNewPassword}
+      subtitle={t.setNewPasswordSubtitle}
     >
       <form
         className="flex flex-col gap-4"
@@ -45,7 +48,7 @@ function ResetInner() {
           setIsSubmitting(true);
           try {
             await resetPassword({ token, newPassword });
-            router.replace("/dashboard");
+            router.replace("/jobs");
           } catch (err) {
             setError(err instanceof Error ? err.message : "Unable to reset password.");
           } finally {
@@ -60,7 +63,7 @@ function ResetInner() {
           hint="In a real app you’d receive this via email."
         />
         <Input
-          label="New password"
+          label={t.newPassword}
           type="password"
           autoComplete="new-password"
           value={newPassword}
@@ -72,13 +75,13 @@ function ResetInner() {
         {error ? <div className="text-sm text-red-600">{error}</div> : null}
 
         <Button disabled={isSubmitting} type="submit" className="sm:w-auto">
-          {isSubmitting ? "Saving…" : "Reset password"}
+          {isSubmitting ? t.saving : t.resetPasswordAction}
         </Button>
 
         <div className="text-sm text-zinc-600">
-          Back to{" "}
+          {t.backTo}{" "}
           <Link className="font-medium text-zinc-950" href="/auth/login">
-            sign in
+            {t.signInAction}
           </Link>
         </div>
       </form>

@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { Input } from "@/components/ui/input";
+import { useI18nText } from "@/lib/app-preferences";
 import { useAuth } from "@/lib/auth";
 
-type SignupRole = "worker" | "contractor";
-
 export default function SignupPage() {
+  const t = useI18nText();
   return (
     <Suspense
       fallback={
-        <AuthShell title="Create account" subtitle="Register in a couple of minutes.">
-          <div className="text-sm text-zinc-600">Loading…</div>
+        <AuthShell title={t.createAccount} subtitle={t.registerSubtitle}>
+          <div className="text-sm text-zinc-600">{t.loading}</div>
         </AuthShell>
       }
     >
@@ -24,18 +24,9 @@ export default function SignupPage() {
 }
 
 function SignupInner() {
-  const { signUp } = useAuth();
+  const t = useI18nText();
+  const { signUp, user } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const initialRole = useMemo<SignupRole>(() => {
-    const role = searchParams.get("role");
-    if (!role) return "worker";
-    if (role === "worker") return "worker";
-    return "contractor";
-  }, [searchParams]);
-
-  const [role, setRole] = useState<SignupRole>(initialRole);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -43,11 +34,12 @@ function SignupInner() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const title = role === "worker" ? "Worker registration" : "Employer / Contractor registration";
-  const subtitle =
-    role === "worker"
-      ? "Find daily work and get paid on time."
-      : "Hire, schedule, and manage labour efficiently.";
+  const title = t.workerRegistration;
+  const subtitle = t.registerSubtitle;
+
+  useEffect(() => {
+    if (user) router.replace("/jobs");
+  }, [user, router]);
 
   return (
     <AuthShell title={title} subtitle={subtitle}>
@@ -58,8 +50,8 @@ function SignupInner() {
           setError(null);
           setIsSubmitting(true);
           try {
-            await signUp({ name, email, password, role });
-            router.replace("/dashboard");
+            await signUp({ name, email, password, role: "worker" });
+            router.replace("/jobs");
           } catch (err) {
             setError(err instanceof Error ? err.message : "Unable to create account.");
           } finally {
@@ -67,35 +59,8 @@ function SignupInner() {
           }
         }}
       >
-        <div className="grid gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => setRole("worker")}
-            className={[
-              "min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition",
-              role === "worker"
-                ? "border-emerald-600 bg-emerald-600 text-white"
-                : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50",
-            ].join(" ")}
-          >
-            I'm a Worker
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole("contractor")}
-            className={[
-              "min-h-[44px] rounded-xl border px-4 py-3 text-sm font-medium transition",
-              role === "contractor"
-                ? "border-emerald-600 bg-emerald-600 text-white"
-                : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50",
-            ].join(" ")}
-          >
-            I'm an Employer / Contractor
-          </button>
-        </div>
-
         <Input
-          label="Full name"
+          label={t.fullNameLabel}
           autoComplete="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -103,7 +68,7 @@ function SignupInner() {
           className="focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/40"
         />
         <Input
-          label="Email"
+          label={t.emailLabel}
           type="email"
           autoComplete="email"
           inputMode="email"
@@ -114,7 +79,7 @@ function SignupInner() {
           className="focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200/40"
         />
         <Input
-          label="Password"
+          label={t.passwordLabel}
           type="password"
           autoComplete="new-password"
           value={password}
@@ -132,13 +97,13 @@ function SignupInner() {
           disabled={isSubmitting}
           className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Creating…" : role === "worker" ? "Register as Worker" : "Register Free"}
+          {isSubmitting ? t.creating : t.registerAsWorker}
         </button>
 
         <div className="text-sm text-zinc-600">
-          Already have an account?{" "}
+          {t.alreadyHaveAccount}{" "}
           <Link className="font-medium text-emerald-700 hover:underline" href="/auth/login">
-            Sign in
+            {t.signInAction}
           </Link>
         </div>
       </form>

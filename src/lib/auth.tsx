@@ -6,14 +6,14 @@ import { DEMO_ACCOUNTS } from "@/config/demo-auth";
 export type AuthUser = {
   email: string;
   name?: string;
-  role?: "worker" | "contractor";
+  role?: "worker";
 };
 
 type AuthContextValue = {
   user: AuthUser | null;
   isLoading: boolean;
   signIn: (params: { email: string; password: string }) => Promise<void>;
-  signUp: (params: { name?: string; email: string; password: string; role?: "worker" | "contractor" }) => Promise<void>;
+  signUp: (params: { name?: string; email: string; password: string; role?: "worker" }) => Promise<void>;
   signOut: () => void;
   requestPasswordReset: (email: string) => Promise<{ token: string }>;
   resetPassword: (params: { token: string; newPassword: string }) => Promise<void>;
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
     if (!match) {
       throw new Error(
-        "Invalid email or password. Demo: worker@labour.demo / Labour123! or employer@labour.demo / Labour123!"
+        "Invalid email or password. Demo: worker@labour.demo / Labour123!"
       );
     }
     const nextUser: AuthUser = {
@@ -84,14 +84,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name?: string;
       email: string;
       password: string;
-      role?: "worker" | "contractor";
+      role?: "worker";
     }) => {
       if (!email.trim()) throw new Error("Email is required.");
       if (!password || password.length < 6) throw new Error("Password must be at least 6 characters.");
       const nextUser: AuthUser = {
         email: email.trim().toLowerCase(),
         name: name?.trim() || undefined,
-        role,
+        role: "worker",
       };
       writeJson(STORAGE_USER_KEY, nextUser);
       setUser(nextUser);

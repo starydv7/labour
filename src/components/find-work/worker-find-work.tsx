@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DEMO_OPENINGS } from "@/components/find-work/demo-openings";
+import { useI18nText } from "@/lib/app-preferences";
 import type { PostedJob } from "@/lib/posted-jobs";
 import {
   addAppliedJobId,
@@ -9,18 +10,15 @@ import {
   loadAppliedJobIds,
 } from "@/lib/worker-applications";
 
-const LOCATIONS = ["Delhi", "Noida", "Gurugram", "Delhi NCR"] as const;
-const JOB_TYPES = ["All Types", "Full-time", "Daily wage", "Contract"] as const;
-
 const TRADE_CHIPS = [
-  { id: "all", label: "All Jobs", trade: null as string | null },
-  { id: "mason", label: "Mason", trade: "Mason" },
-  { id: "electrician", label: "Electrician", trade: "Electrician" },
-  { id: "driver", label: "Driver", trade: "Driver" },
-  { id: "plumber", label: "Plumber", trade: "Plumber" },
-  { id: "helper", label: "Helper", trade: "Helper" },
-  { id: "carpenter", label: "Carpenter", trade: "Carpenter" },
-  { id: "painter", label: "Painter", trade: "Painter" },
+  { id: "all", key: "allJobs", trade: null as string | null },
+  { id: "mason", key: "mason", trade: "Mason" },
+  { id: "electrician", key: "electrician", trade: "Electrician" },
+  { id: "driver", key: "driver", trade: "Driver" },
+  { id: "plumber", key: "plumber", trade: "Plumber" },
+  { id: "helper", key: "helper", trade: "Helper" },
+  { id: "carpenter", key: "carpenter", trade: "Carpenter" },
+  { id: "painter", key: "painter", trade: "Painter" },
 ] as const;
 
 const BADGE_COLORS = [
@@ -51,12 +49,12 @@ function hashPick(s: string, mod: number) {
 }
 
 function companyLabel(email: string): string {
-  const local = email.split("@")[0] ?? "Employer";
+  const local = email.split("@")[0] ?? "Company";
   const domain = email.split("@")[1]?.split(".")[0] ?? "Partner";
   if (email.includes("swiftmove")) return "SwiftMove Logistics";
   if (email.includes("buildwell")) return "BuildWell Infra";
   if (email.includes("spark")) return "Spark Electricals";
-  return `${domain.charAt(0).toUpperCase()}${domain.slice(1)} Contractors`;
+  return `${domain.charAt(0).toUpperCase()}${domain.slice(1)} Services`;
 }
 
 function letterFor(job: PostedJob): string {
@@ -68,32 +66,32 @@ function badgeColor(job: PostedJob): string {
   return BADGE_COLORS[hashPick(job.id, BADGE_COLORS.length)] ?? "bg-emerald-600";
 }
 
-function formatPay(job: PostedJob): string {
+function formatPay(job: PostedJob, t: Record<string, string>): string {
   const n = Number(String(job.wageAmount).replace(/,/g, "").replace(/[^\d.]/g, ""));
   const amt = Number.isFinite(n)
     ? `₹${n.toLocaleString("en-IN")}`
     : `₹${job.wageAmount}`;
-  if (job.wageType === "per_day") return `${amt} per day`;
-  if (job.wageType === "per_month") return `${amt} per month`;
-  return `${amt} (contract)`;
+  if (job.wageType === "per_day") return `${amt} ${t.perDay}`;
+  if (job.wageType === "per_month") return `${amt} ${t.perMonth}`;
+  return `${amt} (${t.contractLabel})`;
 }
 
-function formatPayShort(job: PostedJob): string {
+function formatPayShort(job: PostedJob, t: Record<string, string>): string {
   const raw = job.wageAmount.replace(/,/g, "");
   const n = Number(raw);
   const amt = Number.isFinite(n) ? `₹${n.toLocaleString("en-IN")}` : `₹${job.wageAmount}`;
-  if (job.wageType === "per_day") return `${amt}/day`;
-  if (job.wageType === "per_month") return `${amt}/mo`;
+  if (job.wageType === "per_day") return `${amt}/${t.perDay}`;
+  if (job.wageType === "per_month") return `${amt}/${t.perMonth}`;
   return amt;
 }
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: Record<string, string>): string {
   const d = new Date(iso).getTime();
   const diff = Date.now() - d;
   const days = Math.floor(diff / 86400000);
-  if (days < 1) return "today";
-  if (days === 1) return "1d ago";
-  return `${days}d ago`;
+  if (days < 1) return t.today;
+  if (days === 1) return `1 ${t.daysAgoSuffix}`;
+  return `${days} ${t.daysAgoSuffix}`;
 }
 
 type ActivityTab = "applied" | "confirmed" | "completed";
@@ -139,8 +137,16 @@ const MOCK_ACTIVITY_SEED: ActivityRow[] = [
 ];
 
 export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
+  const t = useI18nText();
+  const LOCATION_OPTIONS = ["Delhi", "Noida", "Gurugram", "Delhi NCR"] as const;
+  const JOB_TYPE_OPTIONS = [
+    { id: "all", label: t.allTypes },
+    { id: "full", label: t.fullTime },
+    { id: "daily", label: t.dailyWage },
+    { id: "contract", label: t.contract },
+  ] as const;
   const [location, setLocation] = useState<string>("Delhi");
-  const [jobType, setJobType] = useState<string>("All Types");
+  const [jobType, setJobType] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [chip, setChip] = useState<string>("all");
   const [activityTab, setActivityTab] = useState<ActivityTab>("applied");
@@ -182,16 +188,26 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
           title: job.title,
           company: companyLabel(job.postedByEmail),
           location: job.location,
-          payShort: formatPayShort(job),
+          payShort: formatPayShort(job, t),
           letter: letterFor(job),
           color: badgeColor(job),
           status: "Applied" as const,
-          statusNote: `Applied ${timeAgo(job.createdAt)}`,
+          statusNote: t.appliedDaysAgo.replace("{{days}}", String(Math.max(1, Math.floor((Date.now() - new Date(job.createdAt).getTime()) / 86400000)))),
         };
       });
 
+    const localizedSeed = MOCK_ACTIVITY_SEED.map((row) => ({
+      ...row,
+      payShort: row.payShort.replace("/day", `/${t.perDay}`).replace("/mo", `/${t.perMonth}`),
+      statusNote:
+        row.status === "Applied"
+          ? t.appliedDaysAgo.replace("{{days}}", "2")
+          : row.status === "Shortlisted"
+            ? t.shortlistedToday
+            : row.statusNote,
+    }));
     const appliedMerged = [...appliedFromStorage];
-    for (const row of MOCK_ACTIVITY_SEED) {
+    for (const row of localizedSeed) {
       if (!appliedMerged.some((r) => r.title === row.title)) {
         appliedMerged.push(row);
       }
@@ -204,11 +220,11 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
         title: "Helper / Beldar",
         company: "Northwind Logistics",
         location: "Delhi",
-        payShort: "₹600/day",
+        payShort: `₹600/${t.perDay}`,
         letter: "H",
         color: "bg-emerald-600",
         status: "Confirmed",
-        statusNote: "Starts next week",
+        statusNote: t.startsNextWeek,
       },
     ];
 
@@ -219,11 +235,11 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
         title: "Painter (Interior)",
         company: "ColourCraft",
         location: "Noida",
-        payShort: "₹16,500/mo",
+        payShort: `₹16,500/${t.perMonth}`,
         letter: "P",
         color: "bg-violet-600",
         status: "Completed",
-        statusNote: "Paid in full · 3 weeks ago",
+        statusNote: `${t.paidInFull} · 3 ${t.weeksAgo}`,
       },
     ];
 
@@ -232,7 +248,7 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
       confirmed,
       completed,
     };
-  }, [source, appliedTick]);
+  }, [source, appliedTick, t]);
 
   const refreshApplied = useCallback(() => setAppliedTick((n) => n + 1), []);
 
@@ -243,20 +259,19 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
           <span aria-hidden className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white/15">
             <BriefcaseIcon className="h-4 w-4" />
           </span>
-          Worker dashboard
+          {t.workerHome}
         </div>
         <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-          Find daily work near you
+          {t.findDailyWorkNearYou}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-emerald-50 sm:text-base">
-          {liveCount.toLocaleString("en-IN")} jobs available across Delhi NCR, Noida &amp; Gurugram
-          right now
+          {liveCount.toLocaleString("en-IN")} {t.jobsAvailableNow}
         </p>
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
-            { k: "₹2.4 Cr+", sub: "Wages paid this month" },
-            { k: liveCount.toLocaleString("en-IN"), sub: "Live job openings" },
-            { k: "50,000+", sub: "Registered workers" },
+            { k: "₹2.4 Cr+", sub: t.wagesPaidThisMonth },
+            { k: liveCount.toLocaleString("en-IN"), sub: t.liveJobOpenings },
+            { k: "50,000+", sub: t.registeredWorkers },
           ].map((s) => (
             <div
               key={s.sub}
@@ -278,7 +293,7 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             >
-              {LOCATIONS.map((loc) => (
+              {LOCATION_OPTIONS.map((loc) => (
                 <option key={loc} value={loc}>
                   {loc}
                 </option>
@@ -292,9 +307,9 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
               value={jobType}
               onChange={(e) => setJobType(e.target.value)}
             >
-              {JOB_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              {JOB_TYPE_OPTIONS.map((jt) => (
+                <option key={jt.id} value={jt.id}>
+                  {jt.label}
                 </option>
               ))}
             </select>
@@ -303,7 +318,7 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
             <SearchIcon className="h-5 w-5 shrink-0 text-zinc-400" />
             <input
               type="search"
-              placeholder="Search by trade, skill…"
+              placeholder={t.searchByTrade}
               className="w-full py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -326,7 +341,7 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
                     : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50",
                 ].join(" ")}
               >
-                {c.label}
+                {t[c.key as keyof typeof t] ?? c.key}
               </button>
             );
           })}
@@ -336,19 +351,19 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
       <section id="live-openings">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
           <h2 className="text-lg font-semibold text-emerald-700">
-            Live Job Openings ({filtered.length} {filtered.length === 1 ? "job" : "jobs"})
+            {t.liveJobOpenings} ({filtered.length} {filtered.length === 1 ? t.job : t.jobs})
           </h2>
           <a
             href="#live-openings"
             className="text-sm font-semibold text-emerald-700 hover:underline"
           >
-            View all →
+            {t.viewAll} →
           </a>
         </div>
         <div className="space-y-4">
           {filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-600">
-              No jobs match your filters. Try another trade or clear search.
+              {t.noJobsMatchFilters}
             </div>
           ) : (
             filtered.map((job) => (
@@ -366,7 +381,7 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
         <div className="relative flex items-center gap-3 py-2">
           <div className="h-px flex-1 border-t border-dashed border-zinc-300" />
           <span className="shrink-0 text-[11px] font-semibold tracking-wider text-zinc-500">
-            YOUR JOB ACTIVITY
+            {t.yourJobActivity}
           </span>
           <div className="h-px flex-1 border-t border-dashed border-zinc-300" />
         </div>
@@ -379,19 +394,19 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
               </span>
               <div>
                 <div className="font-semibold">
-                  My Jobs ({activityRows.applied.length} active)
+                  {t.myJobs} ({activityRows.applied.length} {t.active})
                 </div>
                 <p className="text-xs text-slate-300">
-                  Track your applications, shortlists &amp; confirmed work
+                  {t.trackApplications}
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
               {(
                 [
-                  ["applied", "Applied"],
-                  ["confirmed", "Confirmed"],
-                  ["completed", "Completed"],
+                  ["applied", t.applied],
+                  ["confirmed", t.confirmed],
+                  ["completed", t.completed],
                 ] as const
               ).map(([key, label]) => {
                 const active = activityTab === key;
@@ -416,7 +431,7 @@ export function WorkerFindWork({ jobs }: { jobs: PostedJob[] }) {
 
           <div className="divide-y divide-zinc-100 p-3 sm:p-4">
             {activityRows[activityTab].length === 0 ? (
-              <p className="py-8 text-center text-sm text-zinc-500">Nothing here yet.</p>
+              <p className="py-8 text-center text-sm text-zinc-500">{t.nothingHereYet}</p>
             ) : (
               activityRows[activityTab].map((row) => (
                 <ActivityRowCard key={row.id} row={row} />
@@ -436,6 +451,7 @@ function OpeningCard({
   job: PostedJob;
   onApplied: () => void;
 }) {
+  const t = useI18nText();
   const [applied, setApplied] = useState(false);
 
   useEffect(() => {
@@ -462,10 +478,10 @@ function OpeningCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-semibold text-zinc-900">{job.title}</h3>
-            <span className="text-xs font-semibold text-emerald-700">✓ Verified</span>
+            <span className="text-xs font-semibold text-emerald-700">✓ {t.verified}</span>
             {urgent ? (
               <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold uppercase text-orange-800">
-                Urgent
+                {t.urgent}
               </span>
             ) : null}
           </div>
@@ -477,31 +493,31 @@ function OpeningCard({
             </span>
             <span>
               {job.wageType === "per_day"
-                ? "Daily wage"
+                ? t.dailyWage
                 : job.wageType === "per_month"
-                  ? "Monthly"
-                  : "Contract"}
+                  ? t.monthly
+                  : t.contract}
             </span>
             <span>
-              {job.workersNeeded} opening{job.workersNeeded === 1 ? "" : "s"}
+              {job.workersNeeded} {job.workersNeeded === 1 ? t.opening : t.openings}
             </span>
           </div>
           <div className="mt-3 flex items-center justify-between gap-2 border-t border-zinc-100 pt-3 text-xs text-zinc-500">
-            <span>{timeAgo(job.createdAt)}</span>
+            <span>{timeAgo(job.createdAt, t)}</span>
             <button
               type="button"
               className="inline-flex items-center gap-1 font-medium text-zinc-600 hover:text-emerald-700"
-              aria-label="Save job"
+              aria-label={t.saveJob}
             >
               <HeartIcon className="h-4 w-4" />
-              Save
+              {t.save}
             </button>
           </div>
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-stretch justify-center gap-3 border-t border-zinc-100 pt-4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
         <div className="text-right sm:min-w-[140px]">
-          <div className="text-lg font-bold tabular-nums text-zinc-900">{formatPay(job)}</div>
+          <div className="text-lg font-bold tabular-nums text-zinc-900">{formatPay(job, t)}</div>
         </div>
         <button
           type="button"
@@ -509,7 +525,7 @@ function OpeningCard({
           onClick={apply}
           className="inline-flex h-11 min-h-[44px] items-center justify-center rounded-xl bg-emerald-600 px-6 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:cursor-default disabled:bg-emerald-400/80"
         >
-          {applied ? "Applied" : "Apply now"}
+          {applied ? t.applied : t.applyNow}
         </button>
       </div>
     </article>
@@ -517,6 +533,7 @@ function OpeningCard({
 }
 
 function ActivityRowCard({ row }: { row: ActivityRow }) {
+  const t = useI18nText();
   const pill =
     row.status === "Applied"
       ? "bg-blue-100 text-blue-800"
@@ -544,7 +561,15 @@ function ActivityRowCard({ row }: { row: ActivityRow }) {
       </div>
       <div className="flex shrink-0 flex-row items-center justify-between gap-4 sm:flex-col sm:items-end">
         <div className="text-sm font-bold tabular-nums text-zinc-900">{row.payShort}</div>
-        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${pill}`}>{row.status}</span>
+        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${pill}`}>
+          {row.status === "Applied"
+            ? t.applied
+            : row.status === "Shortlisted"
+              ? t.shortlisted
+              : row.status === "Confirmed"
+                ? t.confirmed
+                : t.completed}
+        </span>
       </div>
     </div>
   );

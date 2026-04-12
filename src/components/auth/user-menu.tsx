@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useI18nText } from "@/lib/app-preferences";
 import { useAuth } from "@/lib/auth";
 
 type Variant = "light" | "dark";
 
 export function UserMenuDropdown({ variant = "light" }: { variant?: Variant }) {
   const { user, signOut } = useAuth();
+  const t = useI18nText();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -22,8 +24,7 @@ export function UserMenuDropdown({ variant = "light" }: { variant?: Variant }) {
   if (!user) return null;
 
   const displayName = user.name?.trim() || user.email.split("@")[0];
-  const roleLabel =
-    user.role === "worker" ? "Worker" : user.role === "contractor" ? "Employer" : null;
+  const roleLabel = user.role === "worker" ? "Worker" : null;
 
   const btn =
     variant === "dark"
@@ -91,7 +92,7 @@ export function UserMenuDropdown({ variant = "light" }: { variant?: Variant }) {
             ) : null}
           </div>
           <Link href="/profile" className={item} role="menuitem" onClick={() => setOpen(false)}>
-            Profile
+            {t.profile}
           </Link>
           <button
             type="button"
@@ -102,7 +103,7 @@ export function UserMenuDropdown({ variant = "light" }: { variant?: Variant }) {
               setOpen(false);
             }}
           >
-            Logout
+            {t.logout}
           </button>
         </div>
       ) : null}

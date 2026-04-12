@@ -2,19 +2,21 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DEMO_ACCOUNTS } from "@/config/demo-auth";
+import { useI18nText } from "@/lib/app-preferences";
 import { useAuth } from "@/lib/auth";
 
 export default function LoginPage() {
+  const t = useI18nText();
   return (
     <Suspense
       fallback={
-        <AuthShell title="Sign in" subtitle="Welcome back. Sign in to continue.">
-          <div className="text-sm text-zinc-600">Loading…</div>
+        <AuthShell title={t.signInAction} subtitle={t.welcomeBack}>
+          <div className="text-sm text-zinc-600">{t.loading}</div>
         </AuthShell>
       }
     >
@@ -24,24 +26,29 @@ export default function LoginPage() {
 }
 
 function LoginInner() {
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
+  const t = useI18nText();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = useMemo(() => searchParams.get("next") || "/dashboard", [searchParams]);
+  const next = useMemo(() => searchParams.get("next") || "/jobs", [searchParams]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (user) router.replace(next);
+  }, [user, router, next]);
+
   return (
-    <AuthShell title="Sign in" subtitle="Welcome back. Sign in to continue.">
+    <AuthShell title={t.signInAction} subtitle={t.welcomeBack}>
       <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950">
-        <div className="font-semibold text-emerald-900">Demo accounts</div>
+        <div className="font-semibold text-emerald-900">{t.demoAccounts}</div>
         <ul className="mt-2 space-y-2 text-xs text-emerald-900/90">
           {DEMO_ACCOUNTS.map((a) => (
             <li key={a.email}>
-              <span className="font-medium">{a.role === "worker" ? "Worker" : "Employer"}:</span>{" "}
+              <span className="font-medium">{t.workerLabel}:</span>{" "}
               {a.email} / {a.password}
             </li>
           ))}
@@ -64,7 +71,7 @@ function LoginInner() {
         }}
       >
         <Input
-          label="Email"
+          label={t.emailLabel}
           type="email"
           autoComplete="email"
           inputMode="email"
@@ -74,7 +81,7 @@ function LoginInner() {
           required
         />
         <Input
-          label="Password"
+          label={t.passwordLabel}
           type="password"
           autoComplete="current-password"
           value={password}
@@ -87,20 +94,20 @@ function LoginInner() {
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Button disabled={isSubmitting} type="submit" className="sm:w-auto">
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? t.saving : t.signInAction}
           </Button>
           <Link
             className="text-sm text-zinc-600 hover:text-zinc-950"
             href="/auth/forgot"
           >
-            Forgot password?
+            {t.forgotPassword}
           </Link>
         </div>
 
         <div className="text-sm text-zinc-600">
-          Don’t have an account?{" "}
+          {t.dontHaveAccount}{" "}
           <Link className="font-medium text-zinc-950" href="/auth/signup">
-            Create one
+            {t.createOne}
           </Link>
         </div>
       </form>
